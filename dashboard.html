@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SafeGuard - Dashboard Informasi</title>
+    <link href="https://fonts.googleapis.com/css2?family=Ovo&family=Inter:wght@300;400;600;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg-dark: #070B14; 
+            --surface-dark: rgba(7, 11, 20, 0.6); 
+            --primary: #00F2FE; /* Cyan Elektrik */
+            --primary-glow: rgba(0, 242, 254, 0.2); 
+            --text-light: #F8FAFC; 
+            --text-muted: #94A3B8;
+            --border-color: rgba(0, 242, 254, 0.15); 
+            --danger-red: #EF4444; 
+            --success-green: #00F2FE; /* Cyan Elektrik */
+            --warning-orange: #F59E0B;
+        }
+        
+        body { 
+            font-family: 'Ovo', serif; 
+            color: var(--text-light); 
+            margin: 0; 
+            padding: 0; 
+            min-height: 100vh; 
+            position: relative; 
+            background-color: var(--bg-dark); 
+            z-index: 1; 
+        }
+
+        body::before {
+            content: "";
+            position: fixed; 
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(rgba(7, 11, 20, 0.75), rgba(7, 11, 20, 0.8)), url('bg_security.jpeg'); 
+            background-size: cover; 
+            background-position: center; 
+            /* Efek Blur Sedikit */
+            filter: blur(8px); 
+            transform: scale(1.05); 
+            z-index: -1;
+        }
+        
+        nav { 
+            width: 100%; 
+            padding: 15px 0; 
+            background: rgba(7, 11, 20, 0.85); 
+            border-bottom: 1px solid var(--border-color); 
+            position: sticky; 
+            top: 0; 
+            z-index: 100; 
+        }
+        
+        .nav-container { 
+            max-width: 1100px; 
+            margin: 0 auto; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            padding: 0 20px; 
+        }
+        
+        .nav-links a { 
+            color: var(--text-muted); 
+            text-decoration: none; 
+            margin-left: 30px; 
+            font-weight: 600; 
+            font-size: 14px; 
+            font-family: 'Inter', sans-serif;
+            transition: 0.3s; 
+        }
+        
+        .nav-links a:hover, .nav-links a.active { 
+            color: var(--primary); 
+            text-shadow: 0 0 8px var(--primary-glow);
+        }
+        
+        .container { max-width: 1100px; margin: 0 auto; padding: 60px 20px; }
+        .header-section { margin-bottom: 50px; }
+        .header-section h1 { font-size: 36px; margin: 0 0 10px 0; letter-spacing: -0.5px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+        .header-section p { color: var(--text-muted); font-size: 16px; font-weight: 300; }
+        
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 25px; margin-bottom: 50px; }
+        
+        .stat-card { 
+            background: var(--surface-dark); 
+            border: 1px solid var(--border-color); 
+            border-radius: 20px; 
+            padding: 25px; 
+            display: flex; 
+            align-items: center; 
+            gap: 20px; 
+            transition: transform 0.3s ease, border-color 0.3s ease; 
+        }
+        .stat-card:hover { transform: translateY(-5px); border-color: var(--primary); }
+        
+        .icon-circle { width: 55px; height: 55px; background: var(--primary-glow); border-radius: 15px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .stat-info h3 { margin: 0; font-size: 11px; font-family: 'Inter', sans-serif; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-muted); }
+        .stat-info .value { font-size: 26px; font-weight: 800; font-family: 'Inter', sans-serif; margin: 5px 0; color: var(--text-light); }
+        .stat-info .desc { font-size: 12px; color: var(--text-muted); }
+        
+        .chart-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 25px; margin-bottom: 35px; }
+        @media (max-width: 850px) { .chart-grid { grid-template-columns: 1fr; } }
+        
+        .chart-card { background: var(--surface-dark); border: 1px solid var(--border-color); border-radius: 24px; padding: 30px; box-sizing: border-box; }
+        .chart-card h2 { font-size: 18px; margin-top: 0; margin-bottom: 25px; display: flex; align-items: center; gap: 10px; }
+        .chart-container { position: relative; width: 100%; height: 260px; }
+
+        /* CONFUSION MATRIX & PERFORMANCE REPORT */
+        .model-section { background: var(--surface-dark); border: 1px solid var(--border-color); border-radius: 24px; padding: 35px; margin-bottom: 35px; }
+        .model-section h2 { font-size: 18px; margin: 0 0 8px 0; display: flex; align-items: center; gap: 10px; }
+        .model-section .subtitle { color: var(--text-muted); font-size: 13px; margin: 0 0 30px 0; }
+        .model-grid { display: grid; grid-template-columns: auto 1fr; gap: 40px; align-items: start; }
+        @media (max-width: 750px) { .model-grid { grid-template-columns: 1fr; } .cm-wrapper { overflow-x: auto; } }
+
+        .cm-wrapper { text-align: center; }
+        .cm-wrapper .cm-title { font-size: 11px; font-family: 'Inter', sans-serif; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-muted); margin-bottom: 12px; }
+        .cm-table { border-collapse: separate; border-spacing: 6px; font-family: 'Inter', sans-serif; }
+        .cm-table td { width: 110px; height: 80px; text-align: center; border-radius: 10px; font-weight: 800; font-size: 22px; }
+        .cm-table .cm-label { font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; background: transparent !important; height: auto; padding: 5px 8px; }
+        .cm-tp { background: rgba(0,242,254,0.15); color: var(--success-green); border: 1px solid rgba(0,242,254,0.25); }
+        .cm-tn { background: rgba(0,242,254,0.1); color: var(--success-green); border: 1px solid rgba(0,242,254,0.2); }
+        .cm-fp { background: rgba(239,68,68,0.1); color: var(--danger-red); border: 1px solid rgba(239,68,68,0.2); }
+        .cm-fn { background: rgba(239,68,68,0.15); color: var(--danger-red); border: 1px solid rgba(239,68,68,0.25); }
+        .cm-sub { display: block; font-size: 10px; font-weight: 400; color: var(--text-muted); margin-top: 4px; }
+
+        .metrics-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; font-family: 'Inter', sans-serif; }
+        .metric-item { background: rgba(7, 11, 20, 0.4); border-radius: 12px; padding: 18px 20px; border: 1px solid var(--border-color); }
+        .metric-item .m-label { font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-muted); margin-bottom: 8px; }
+        .metric-item .m-value { font-size: 28px; font-weight: 800; color: var(--text-light); }
+        .metric-item .m-class { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+        .metric-item.highlight { border-color: var(--primary); background: var(--primary-glow); }
+        .metric-item.highlight .m-value { color: var(--primary); text-shadow: 0 0 10px rgba(0, 242, 254, 0.4); }
+        
+        .dataset-info { margin-top: 20px; padding: 18px 20px; background: rgba(7, 11, 20, 0.4); border-radius: 12px; border: 1px solid var(--border-color); display: flex; gap: 30px; flex-wrap: wrap; font-family: 'Inter', sans-serif; }
+        .dataset-info .di-item { font-size: 13px; color: var(--text-muted); }
+        .dataset-info .di-item strong { color: var(--text-light); }
+
+        .data-section { background: var(--surface-dark); border: 1px solid var(--border-color); border-radius: 24px; padding: 40px; }
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; flex-wrap: wrap; gap: 10px; }
+        .section-header h2 { font-size: 18px; margin: 0; display: flex; align-items: center; gap: 10px;}
+        .section-header-actions { display: flex; gap: 10px; align-items: center; font-family: 'Inter', sans-serif; }
+        
+        .live-indicator { display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--success-green); font-weight: 700; text-transform: uppercase; border: 1px solid var(--success-green); padding: 6px 14px; border-radius: 50px; background: rgba(0,242,254,0.05); }
+        .dot { width: 6px; height: 6px; background: var(--success-green); border-radius: 50%; animation: blink 1.2s infinite; }
+        @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+        
+        .btn-action-sm { padding: 7px 16px; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; border: 1px solid; letter-spacing: 0.5px; transition: 0.3s; font-family: 'Inter', sans-serif; display: flex; align-items: center; gap: 6px; }
+        .btn-export { background: transparent; border-color: var(--primary); color: var(--primary); }
+        .btn-export:hover { background: var(--primary-glow); transform: translateY(-1px); }
+        .btn-clear { background: transparent; border-color: rgba(239,68,68,0.4); color: var(--danger-red); }
+        .btn-clear:hover { background: rgba(239,68,68,0.1); transform: translateY(-1px); }
+        
+        table { width: 100%; border-collapse: collapse; text-align: left; font-family: 'Inter', sans-serif; }
+        th { padding: 15px; font-size: 11px; text-transform: uppercase; color: var(--text-muted); border-bottom: 1px solid var(--border-color); }
+        td { padding: 18px 15px; font-size: 14px; border-bottom: 1px solid rgba(0, 242, 254, 0.05); }
+        .hist-url { font-family: 'Fira Code', monospace; max-width: 400px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .badge-status { padding: 4px 12px; border-radius: 6px; font-size: 11px; font-weight: 800; text-transform: uppercase; display: inline-block; }
+        .badge-phish { background: rgba(239,68,68,0.15); color: var(--danger-red); border: 1px solid var(--danger-red); }
+        .badge-secure { background: rgba(0,242,254,0.15); color: var(--success-green); border: 1px solid var(--success-green); }
+
+        .title-logo { width: 22px; height: auto; filter: drop-shadow(0 0 8px rgba(0, 242, 254, 0.5)); }
+        .btn-logo { width: 14px; height: auto; }
+        .empty-state-logo { width: 50px; height: auto; margin-bottom: 15px; opacity: 0.7; filter: drop-shadow(0 0 10px rgba(0, 242, 254, 0.5)); }
+    </style>
+</head>
+<body>
+
+<nav>
+    <div class="nav-container">
+        <div class="brand-logo" style="display: flex; align-items: center; gap: 12px; font-family: 'Inter', sans-serif;">
+            <img src="logo_safeguard.png" alt="SafeGuard Icon" style="width: 32px; height: auto; filter: drop-shadow(0 0 8px rgba(0, 242, 254, 0.5));">
+            <span style="font-weight: 800; font-size: 22px; letter-spacing: -0.5px; color: #F8FAFC;">Safe<span style="color: var(--primary);">Guard</span>_</span>
+        </div>
+        <div class="nav-links">
+            <a href="scanner.html">Scanner</a>
+            <a href="dashboard.html" class="active">Dashboard</a>
+            <a href="dojo.html">Quiz</a>
+            <a href="portal.html">Metodologi</a>
+            <a href="vault.html">Information</a>
+        </div>
+    </div>
+</nav>
+
+<div class="container">
+    <div class="header-section">
+        <h1>Analisis Lokal</h1>
+        <p>Analisis visual rekam jejak investigasi forensik digital dan metrik performa model AI.</p>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="icon-circle"><img src="logo_safeguard.png" style="width: 28px;"></div>
+            <div class="stat-info"><h3>Total Scanned</h3><div class="value" id="totalScans">0</div><div class="desc">Aktivitas audit global</div></div>
+        </div>
+        <div class="stat-card">
+            <div class="icon-circle" style="background:rgba(239,68,68,0.1);"><img src="logo_safeguard.png" style="width: 28px;"></div>
+            <div class="stat-info"><h3>Phishing Detected</h3><div class="value" id="phishCount">0</div><div class="desc">Ancaman berhasil diisolasi</div></div>
+        </div>
+        <div class="stat-card">
+            <div class="icon-circle" style="background:rgba(0,242,254,0.1);"><img src="logo_safeguard.png" style="width: 28px;"></div>
+            <div class="stat-info"><h3>Verified Secure</h3><div class="value" id="secureCount">0</div><div class="desc">Situs terbukti bersih</div></div>
+        </div>
+    </div>
+
+    <div class="chart-grid">
+        <div class="chart-card">
+            <h2><img src="logo_safeguard.png" class="title-logo"> Rasio Vektor Ancaman Siber </h2>
+            <div class="chart-container"><canvas id="ratioChart"></canvas></div>
+        </div>
+        <div class="chart-card">
+            <h2><img src="logo_safeguard.png" class="title-logo"> Ringkasan Metrik</h2>
+            <div class="chart-container"><canvas id="pieChart"></canvas></div>
+        </div>
+    </div>
+
+    <div class="model-section">
+        <h2><img src="logo_safeguard.png" class="title-logo"> Laporan Model Performance</h2>
+        <p class="subtitle">Data statis hasil pelatihan pada UCI Phishing Dataset — test set 20% (2.211 data)</p>
+        <div class="model-grid">
+            <div class="cm-wrapper">
+                <div class="cm-title">Confusion Matrix</div>
+                <table class="cm-table">
+                    <tr>
+                        <td class="cm-label"></td>
+                        <td class="cm-label">Pred: Phishing</td>
+                        <td class="cm-label">Pred: Legitimate</td>
+                    </tr>
+                    <tr>
+                        <td class="cm-label">Actual: Phishing</td>
+                        <td class="cm-tp">905<span class="cm-sub">True Positive</span></td>
+                        <td class="cm-fn">75<span class="cm-sub">False Negative</span></td>
+                    </tr>
+                    <tr>
+                        <td class="cm-label">Actual: Legitimate</td>
+                        <td class="cm-fp">41<span class="cm-sub">False Positive</span></td>
+                        <td class="cm-tn">1190<span class="cm-sub">True Negative</span></td>
+                    </tr>
+                </table>
+                <div style="margin-top:14px;font-size:11px;color:var(--text-muted);font-family:'Inter',sans-serif;">
+                    ⚠️ False Negative = phishing yang <strong style="color:var(--danger-red);">lolos deteksi</strong>
+                </div>
+            </div>
+
+            <div>
+                <div class="metrics-grid">
+                    <div class="metric-item highlight">
+                        <div class="m-label">Overall Accuracy</div>
+                        <div class="m-value">94.71%</div>
+                        <div class="m-class">Keseluruhan dataset</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="m-label">Precision</div>
+                        <div class="m-value">95.7%</div>
+                        <div class="m-class">Kelas Phishing</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="m-label">Recall (Sensitivity)</div>
+                        <div class="m-value">92.3%</div>
+                        <div class="m-class">Kelas Phishing</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="m-label">F1-Score</div>
+                        <div class="m-value">93.97%</div>
+                        <div class="m-class">Kelas Phishing</div>
+                    </div>
+                </div>
+                <div class="dataset-info">
+                    <div class="di-item">Dataset: <strong>UCI Phishing Websites</strong></div>
+                    <div class="di-item">Total data: <strong>11.055 record</strong></div>
+                    <div class="di-item">Legitimate: <strong>6.157</strong></div>
+                    <div class="di-item">Phishing: <strong>4.898</strong></div>
+                    <div class="di-item">Split: <strong>80% train / 20% test</strong></div>
+                    <div class="di-item">Fitur: <strong>30 fitur topologi web</strong></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="data-section">
+        <div class="section-header">
+            <h2><img src="logo_safeguard.png" class="title-logo"> Master Investigation Audit Trail</h2>
+            <div class="section-header-actions">
+                <div class="live-indicator"><div class="dot"></div> Live Sync</div>
+                <button class="btn-action-sm btn-export" onclick="exportCSV()">
+                    <img src="logo_safeguard.png" class="btn-logo"> Export CSV
+                </button>
+                <button class="btn-action-sm btn-clear" onclick="clearAllData()">
+                    <img src="logo_safeguard.png" class="btn-logo"> Clear
+                </button>
+            </div>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Analyzed URL Endpoint</th>
+                    <th>Classification Verdict</th>
+                    <th>Confidence Weight</th>
+                    <th>Execution Time</th>
+                </tr>
+            </thead>
+            <tbody id="dashboardTableBody"></tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    window.onload = function() {
+        let history = JSON.parse(localStorage.getItem('safeguard_history')) || [];
+        let total = history.length;
+        let phishing = history.filter(i => i.prediction.toLowerCase() === 'phishing').length;
+        let secure = total - phishing;
+
+        document.getElementById('totalScans').innerText = total;
+        document.getElementById('phishCount').innerText = phishing;
+        document.getElementById('secureCount').innerText = secure;
+
+        const tableBody = document.getElementById('dashboardTableBody');
+        if (total === 0) {
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="4" style="text-align: center; padding: 50px 20px; font-family: 'Inter', sans-serif;">
+                        <div style="color: var(--text-muted); font-size: 14px; display: flex; flex-direction: column; align-items: center;">
+                            <img src="logo_safeguard.png" class="empty-state-logo">
+                            Data investigasi belum tersedia.<br>
+                            <a href="index.html" style="color: var(--primary); text-decoration: none; font-weight: bold; margin-top: 15px; display: inline-block; border: 1px solid var(--primary); padding: 8px 20px; border-radius: 8px; background: rgba(0,242,254,0.05); transition: 0.3s;">Mulai Pemindaian Pertama</a>
+                        </div>
+                    </td>
+                </tr>`;
+        } else {
+            tableBody.innerHTML = '';
+            history.forEach(item => {
+                const isPhish = item.prediction.toLowerCase() === 'phishing';
+                tableBody.innerHTML += `
+                    <tr>
+                        <td class="hist-url" title="${item.url}">${item.url}</td>
+                        <td><span class="badge-status ${isPhish ? 'badge-phish' : 'badge-secure'}">${item.prediction.toUpperCase()}</span></td>
+                        <td style="font-family:'Fira Code',monospace;font-weight:600;color:var(--primary);">${item.confidence}</td>
+                        <td style="color:var(--text-muted);font-size:13px;">Hari Ini, ${item.time}</td>
+                    </tr>`;
+            });
+        }
+
+        const ctxBar = document.getElementById('ratioChart').getContext('2d');
+        new Chart(ctxBar, {
+            type: 'bar',
+            data: {
+                labels: ['Your Active Session', 'National Benchmark (IDN)', 'Global Threat Index'],
+                datasets: [
+                    { label: 'Phishing', data: [phishing, 42, 65], backgroundColor: '#EF4444', borderRadius: 6 },
+                    { label: 'Secure', data: [secure, 58, 35], backgroundColor: '#00F2FE', borderRadius: 6 } // Cyan Elektrik
+                ]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { labels: { color: '#94A3B8', font: { family: 'Inter' } } } },
+                scales: {
+                    x: { ticks: { color: '#94A3B8', font: { family: 'Inter' } }, grid: { color: 'rgba(255,255,255,0.02)' } },
+                    y: { ticks: { color: '#94A3B8', font: { family: 'Inter' } }, grid: { color: 'rgba(255,255,255,0.02)' } }
+                }
+            }
+        });
+
+        const ctxPie = document.getElementById('pieChart').getContext('2d');
+        new Chart(ctxPie, {
+            type: 'doughnut',
+            data: {
+                labels: ['Phishing', 'Secure'],
+                datasets: [{ 
+                    data: [total === 0 ? 1 : phishing, total === 0 ? 1 : secure], 
+                    backgroundColor: total === 0 ? ['#131B2E', '#1E293B'] : ['#EF4444', '#00F2FE'], // Merah & Cyan Elektrik
+                    borderWidth: 0 
+                }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { position: 'bottom', labels: { color: '#94A3B8', padding: 15, font: { family: 'Inter' } } } },
+                cutout: '75%'
+            }
+        });
+    };
+
+    function exportCSV() {
+        let history = JSON.parse(localStorage.getItem('safeguard_history')) || [];
+        if (history.length === 0) { alert('Belum ada data untuk diekspor.'); return; }
+        
+        const now = new Date();
+        const dateStr = `${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}`;
+        const timeStr = `${String(now.getHours()).padStart(2,'0')}${String(now.getMinutes()).padStart(2,'0')}`;
+
+        let csvContent = `"TARGET URL","HASIL KLASIFIKASI","BOBOT KEYAKINAN","WAKTU EKSEKUSI"\n`;
+        
+        history.forEach(item => {
+            // Standarisasi teks
+            const verdict = item.prediction ? item.prediction.toUpperCase() : "UNKNOWN";
+            const execTime = `Hari Ini, ${item.time}`;
+
+            csvContent += `"${item.url}","${verdict}","${item.confidence}","${execTime}"\n`;
+        });
+
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `SafeGuard_MasterLog_${dateStr}_${timeStr}.csv`;
+        a.click();
+    }
+
+    function clearAllData() {
+        if (confirm('Hapus seluruh data audit trail? Tindakan ini tidak dapat dibatalkan.')) {
+            localStorage.removeItem('safeguard_history');
+            location.reload();
+        }
+    }
+</script>
+</body>
+</html>

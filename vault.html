@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SafeGuard - Cyber Vault & FAQ</title>
+    <link href="https://fonts.googleapis.com/css2?family=Ovo&family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-dark: #070B14;
+            --surface-dark: rgba(7, 11, 20, 0.65);
+            --primary: #00F2FE;
+            --primary-glow: rgba(0, 242, 254, 0.25);
+            --text-light: #F8FAFC;
+            --text-muted: #94A3B8;
+            --border-color: rgba(0, 242, 254, 0.15);
+            --danger: #EF4444;
+            --success: #00F2FE;
+        }
+
+        body {
+            font-family: 'Ovo', serif;
+            color: var(--text-light);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            position: relative;
+            background-color: var(--bg-dark);
+            z-index: 1;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(rgba(7, 11, 20, 0.75), rgba(7, 11, 20, 0.85)), url('bg_security.jpeg');
+            background-size: cover;
+            background-position: center;
+            filter: blur(8px);
+            transform: scale(1.05);
+            z-index: -1;
+        }
+
+        nav {
+            width: 100%;
+            padding: 15px 0;
+            background: rgba(7, 11, 20, 0.85);
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .nav-container {
+            max-width: 1100px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+        }
+        
+        .nav-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            margin-left: 30px;
+            font-weight: 600;
+            font-size: 14px;
+            font-family: 'Inter', sans-serif;
+            transition: 0.3s;
+        }
+        
+        .nav-links a:hover, .nav-links a.active {
+            color: var(--primary);
+            text-shadow: 0 0 8px var(--primary-glow);
+        }
+
+        .container { max-width: 1050px; margin: 0 auto; padding: 60px 20px; }
+
+        .vault-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 40px;
+            text-align: left;
+            margin-bottom: 60px;
+            background: var(--surface-dark);
+            padding: 40px;
+            border-radius: 24px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+        }
+        .vault-header-text { flex: 1; }
+        .vault-header-text h1 { font-size: 40px; margin: 0 0 15px 0; color: var(--text-light); }
+        .vault-header-text p { margin: 0; color: #CBD5E1; font-size: 17px; line-height: 1.6; }
+        .vault-header-img img { width: 180px; height: 180px; object-fit: cover; border-radius: 20px; border: 2px solid var(--danger); box-shadow: 0 10px 25px rgba(239, 68, 68, 0.25); }
+
+        .section-title {
+            font-size: 26px;
+            margin: 50px 0 25px 0;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-shadow: 0 0 10px var(--primary-glow);
+            border-left: 4px solid var(--primary);
+            padding-left: 15px;
+        }
+        .section-title img { width: 24px; height: auto; }
+
+        .vault-card { background: var(--surface-dark); border: 1px solid var(--border-color); border-radius: 20px; padding: 40px; margin-bottom: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+        .card-title-block { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; }
+        .card-title-block img { width: 32px; height: auto; filter: drop-shadow(0 0 5px var(--primary-glow)); }
+        .card-title-block h3 { margin: 0; font-size: 22px; color: var(--text-light); }
+        
+        .explanation { color: #CBD5E1; font-size: 16px; margin-bottom: 20px; line-height: 1.7; }
+        .analogy { background: rgba(0, 242, 254, 0.05); border-left: 4px solid var(--primary); padding: 15px 20px; border-radius: 0 12px 12px 0; font-size: 15px; margin-bottom: 25px; font-style: italic; color: #A7F3D0; }
+        
+        .example-box { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 25px; font-family: 'Inter', sans-serif; }
+        .ex-item { padding: 18px; border-radius: 12px; font-family: monospace; font-size: 15px; text-align: center; word-break: break-all; }
+        .ex-danger { background: rgba(239, 68, 68, 0.08); border: 1px solid var(--danger); color: #FCA5A5; }
+        .ex-success { background: rgba(0, 242, 254, 0.08); border: 1px solid var(--primary); color: #A7F3D0; }
+        .ex-label { display: block; font-family: 'Inter', sans-serif; font-size: 11px; font-weight: bold; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 1px; }
+
+        .ai-action { background: rgba(7, 11, 20, 0.5); padding: 18px 20px; border-radius: 12px; font-size: 14.5px; color: var(--primary); display: flex; align-items: center; gap: 15px; border: 1px solid rgba(0, 242, 254, 0.08); }
+        .ai-action img { width: 22px; height: auto; }
+
+        .avoid-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; }
+        .avoid-card { background: var(--surface-dark); border: 1px solid var(--border-color); border-radius: 16px; padding: 25px; text-align: center; transition: 0.3s; }
+        .avoid-card:hover { border-color: var(--primary); transform: translateY(-3px); }
+        .avoid-card img { width: 45px; height: auto; margin-bottom: 15px; filter: drop-shadow(0 0 8px var(--primary-glow)); }
+        .avoid-card h4 { margin: 0 0 10px 0; font-family: 'Inter', sans-serif; font-size: 16px; color: var(--text-light); }
+        .avoid-card p { margin: 0; font-size: 14px; color: var(--text-muted); line-height: 1.6; }
+
+        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; margin-bottom: 50px; }
+        .info-card { background: rgba(7, 11, 20, 0.4); border: 1px solid var(--border-color); border-radius: 16px; padding: 30px; }
+        .info-card h3 { margin: 0 0 12px 0; font-family: 'Inter', sans-serif; font-size: 18px; color: var(--primary); display: flex; align-items: center; gap: 10px; }
+        .info-card h3 img { width: 18px; }
+        .info-card p { margin: 0; font-size: 15px; color: #CBD5E1; line-height: 1.7; }
+
+        .faq-section { background: var(--surface-dark); border: 1px solid var(--border-color); border-radius: 24px; padding: 40px; margin-top: 20px; }
+        .faq-section h2 { font-family: 'Inter', sans-serif; font-size: 20px; margin: 0 0 25px 0; display: flex; align-items: center; gap: 10px; }
+        .faq-section h2 img { width: 22px; }
+        
+        .faq-item { border-bottom: 1px solid rgba(0, 242, 254, 0.1); padding: 20px 0; }
+        .faq-item:last-child { border-bottom: none; }
+        
+        .faq-question { display: flex; justify-content: space-between; align-items: center; cursor: pointer; font-family: 'Inter', sans-serif; font-size: 15px; font-weight: 600; color: var(--text-light); transition: 0.3s; }
+        .faq-question:hover { color: var(--primary); }
+        .faq-question i { font-size: 12px; transition: transform 0.3s ease; color: var(--primary); }
+        
+        .faq-answer { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; }
+        .faq-answer p { font-family: 'Inter', sans-serif; font-size: 14px; color: var(--text-muted); line-height: 1.7; margin: 15px 0 0 0; padding-right: 20px; }
+        
+        .faq-item.active .faq-answer { max-height: 300px; }
+        .faq-item.active .faq-question i { transform: rotate(180deg); }
+
+        @media (max-width: 768px) { .info-grid { grid-template-columns: 1fr; } .vault-header { flex-direction: column; text-align: center; } .vault-header-text h1 { text-align: center; } }
+
+        .footer-full { width: 100%; text-align: center; padding: 25px 20px; font-size: 12px; color: rgba(0, 242, 254, 0.4); letter-spacing: 2px; font-family: 'Inter', sans-serif; border-top: 1px solid var(--border-color); background: rgba(7, 11, 20, 0.8); margin-top: 60px; }
+    </style>
+</head>
+<body>
+
+<nav>
+    <div class="nav-container">
+        <div class="brand-logo" style="display: flex; align-items: center; gap: 12px; font-family: 'Inter', sans-serif;">
+            <img src="logo_safeguard.png" alt="SafeGuard Icon" style="width: 32px; height: auto; filter: drop-shadow(0 0 8px rgba(0, 242, 254, 0.5));">
+            <span style="font-weight: 800; font-size: 22px; letter-spacing: -0.5px; color: #F8FAFC;">Safe<span style="color: var(--primary);">Guard</span>_</span>
+        </div>
+        <div class="nav-links">
+            <a href="scanner.html">Scanner</a>
+            <a href="dashboard.html">Dashboard</a>
+            <a href="dojo.html">Arena Simulasi</a>
+            <a href="portal.html">Metodologi</a>
+            <a href="vault.html" class="active">Information</a>
+        </div>
+    </div>
+</nav>
+
+<div class="container">
+    <div class="vault-header">
+        <div class="vault-header-text">
+            <h1>Kamus Edukasi & Forensik Siber</h1>
+            <p>Selamat datang di Cyber Vault. Modul edukasi ini dirancang khusus untuk melatih kepekaan insting Anda dalam mendeteksi manipulasi digital dan memahami anatomi serangan phishing secara komprehensif.</p>
+        </div>
+        <div class="vault-header-img">
+            <img src="img_hacker.jpeg" alt="Ancaman Siber">
+        </div>
+    </div>
+
+    <div class="section-title">
+        <img src="logo_safeguard.png"> Anatomi Taktik Serangan URL Phishing
+    </div>
+
+    <div class="vault-card">
+        <div class="card-title-block">
+            <img src="logo_safeguard.png">
+            <h3>1. Plesetan Nama Domain (Typosquatting)</h3>
+        </div>
+        <div class="explanation">
+            Penipu sengaja mendaftarkan nama situs yang salah ejaannya sedikit untuk meniru merek terkenal. Taktik ini mengandalkan kelalaian pengguna yang mengetik buru-buru atau salah membaca susunan huruf yang mirip di layar kaca.
+        </div>
+        <div class="analogy">
+            💡 <strong>Analogi Awam:</strong> Seperti membeli susu kotak di pasar. Anda mengira membeli merek "Ultra", padahal di kemasannya tertulis "Uitra". Huruf 'l' kecil diganti huruf 'i' besar. Sekilas terlihat sama, tapi aslinya palsu.
+        </div>
+        <div class="example-box">
+            <div class="ex-item ex-success"><span class="ex-label">Situs Asli (Resmi)</span>www.klikbca.com</div>
+            <div class="ex-item ex-danger"><span class="ex-label">Situs Jebakan (Phishing)</span>www.kllkbca.com</div>
+        </div>
+        <div class="ai-action">
+            <img src="logo_safeguard.png">
+            <span><strong>Deteksi Otomatis AI:</strong> Modul backend Python kami mengekstrak rekam jejak pembuatan web menggunakan Live WHOIS. Situs tiruan seperti ini biasanya berumur kurang dari 6 bulan dan langsung ditolak oleh model AI C4.5.</span>
+        </div>
+    </div>
+
+    <div class="vault-card">
+        <div class="card-title-block">
+            <img src="logo_safeguard.png">
+            <h3>2. Penyamaran Subdomain (Subdomain Deception)</h3>
+        </div>
+        <div class="explanation">
+            Peretas menyisipkan nama perusahaan tepercaya di bagian depan alamat web (Subdomain), memanipulasi mata Anda agar percaya. Padahal, nama domain pemilik asli situs tersebut terletak tepat di sebelah kiri ekstensi akhir seperti ".com".
+        </div>
+        <div class="analogy">
+            💡 <strong>Analogi Awam:</strong> Seseorang menempelkan papan nama bertuliskan "Loket Resmi Bank" di pintu depan sebuah rumah kosong milik komplotan pencuri.
+        </div>
+        <div class="example-box">
+            <div class="ex-item ex-success"><span class="ex-label">Rumah Asli Instagram</span>www.instagram.com/login</div>
+            <div class="ex-item ex-danger"><span class="ex-label">Rumah Jebakan Penipu</span>instagram.login-keamanan.com</div>
+        </div>
+        <div class="ai-action">
+            <img src="logo_safeguard.png">
+            <span><strong>Deteksi Otomatis AI:</strong> Algoritma pemrosesan URL menghitung jumlah kemunculan tanda titik (.) dan panjang string. Struktur berlapis yang mencurigakan akan memicu klasifikasi bernilai risiko tinggi.</span>
+        </div>
+    </div>
+
+    <div class="vault-card">
+        <div class="card-title-block">
+            <img src="logo_safeguard.png">
+            <h3>3. Ketiadaan Enkripsi Keamanan (No SSL Certificate)</h3>
+        </div>
+        <div class="explanation">
+            Situs yang aman wajib menggunakan protokol enkripsi "HTTPS" (ditandai ikon gembok di browser). Situs penipu seringkali beroperasi tanpa sertifikat ini (hanya menggunakan "HTTP" biasa), yang berarti data apa pun yang Anda ketikkan di sana akan dikirim secara terbuka tanpa perlindungan sandi.
+        </div>
+        <div class="analogy">
+            💡 <strong>Analogi Awam:</strong> Mengirimkan lembar kertas berisi nomor kartu kredit dan PIN Anda menggunakan amplop transparan. Siapa pun kurir yang membawanya di jalan bisa membaca data rahasia tersebut.
+        </div>
+        <div class="example-box">
+            <div class="ex-item ex-success"><span class="ex-label">HTTPS (Data Terkunci Aman)</span>https://</div>
+            <div class="ex-item ex-danger"><span class="ex-label">HTTP (Sangat Rentan Bocor)</span>http://</div>
+        </div>
+        <div class="ai-action">
+            <img src="logo_safeguard.png">
+            <span><strong>Deteksi Otomatis AI:</strong> Pustaka BeautifulSoup kami mengekstrak status fungsional elemen <em>SSLfinal_State</em> secara real-time untuk mendeteksi keabsahan enkripsi peladen target.</span>
+        </div>
+    </div>
+
+    <div class="section-title">
+        <img src="logo_safeguard.png"> Panduan Taktis Menghindari Jebakan Phishing
+    </div>
+    <div class="avoid-grid">
+        <div class="avoid-card">
+            <img src="logo_safeguard.png">
+            <h4>Verifikasi URL Jeli</h4>
+            <p>Selalu baca alamat web dari arah kanan ke kiri sebelum memasukkan kredensial sandi atau nomor pin.</p>
+        </div>
+        <div class="avoid-card">
+            <img src="logo_safeguard.png">
+            <h4>Aktifkan Fitur 2FA</h4>
+            <p>Gunakan Autentikasi Dua Faktor (2FA). Jika sandi Anda tercuri, peretas tetap terhalang kode OTP telepon.</p>
+        </div>
+        <div class="avoid-card">
+            <img src="logo_safeguard.png">
+            <h4>Abaikan Desakan Panik</h4>
+            <p>Jangan pernah merespons pesan instan yang mengancam akan memblokir akun Anda dalam hitungan jam.</p>
+        </div>
+        <div class="avoid-card">
+            <img src="logo_safeguard.png">
+            <h4>Gunakan Pro Scanner</h4>
+            <p>Manfaatkan modul pemindai berbasis kecerdasan buatan seperti SafeGuard untuk membedah topologi tautan asing.</p>
+        </div>
+    </div>
+
+    <div class="section-title">
+        <img src="logo_safeguard.png"> Variasi Eksploitasi & Dampak Finansial
+    </div>
+    <div class="info-grid">
+        <div class="info-card">
+            <h3><img src="logo_safeguard.png"> Spear Phishing vs Whaling</h3>
+            <p>Phishing biasa disebar acak ke ribuan orang. Namun, <strong>Spear Phishing</strong> menargetkan individu spesifik menggunakan data pribadi korban yang bocor terlebih dahulu. Jika korbannya adalah pejabat tinggi atau Direktur Perusahaan besar, serangan ini disebut <strong>Whaling</strong>.</p>
+        </div>
+        <div class="info-card">
+            <h3><img src="logo_safeguard.png"> Mengenal Smishing & Vishing</h3>
+            <p>Ancaman tidak hanya datang dari email atau situs web. Phishing melalui pesan teks singkat (SMS/WhatsApp) dikenal sebagai <strong>Smishing</strong>. Sedangkan penipuan berbasis panggilan suara langsung yang meniru suara robot bank disebut <strong>Vishing</strong>.</p>
+        </div>
+        <div class="info-card">
+            <h3><img src="logo_safeguard.png"> Dampak Kebocoran Identitas</h3>
+            <p>Sekali Anda memasukkan data ke situs phishing, peretas akan melakukan pengambilalihan akun <em>(Account Takeover)</em>. Identitas Anda dapat disalahgunakan untuk pinjaman online ilegal, penipuan transaksi atas nama Anda, hingga spionase data institusi.</p>
+        </div>
+        <div class="info-card">
+            <h3><img src="logo_safeguard.png"> Pentingnya Mengikuti Dojo</h3>
+            <p>Teknologi pertahanan siber terus berkembang, tetapi kelalaian manusia <em>(human error)</em> tetap menjadi celah terbesar. Melalui simulasi berkala di modul Dojo, insting kewaspadaan Anda dilatih secara interaktif tanpa risiko kehilangan data nyata.</p>
+        </div>
+    </div>
+
+    <div class="faq-section">
+        <h2><img src="logo_safeguard.png" alt="Icon"> Pertanyaan Seputar Riset & Keamanan</h2>
+        
+        <div class="faq-item">
+            <div class="faq-question">
+                <span>Mengapa hasil Scanner SafeGuard berbeda dengan peringatan peramban bawaan?</span>
+                <i class="fa-solid fa-chevron-down"></i>
+            </div>
+            <div class="faq-answer">
+                <p>Peramban konvensional (seperti Chrome atau Edge) umumnya hanya mencocokkan URL dengan daftar blokir global (blacklist) statis. SafeGuard Pro menggunakan kecerdasan buatan (Decision Tree C4.5) yang secara aktif mengekstrak 30 atribut dari struktur URL dan data WHOIS secara real-time. Hal ini memungkinkan sistem kami mendeteksi situs phishing baru yang belum pernah dilaporkan sebelumnya (Zero-day Attack).</p>
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question">
+                <span>Apa yang harus saya lakukan jika terlanjur mengklik link Phishing?</span>
+                <i class="fa-solid fa-chevron-down"></i>
+            </div>
+            <div class="faq-answer">
+                <p>Jangan panik. Segera tutup halaman tersebut dan jangan pernah mengisikan informasi sensitif apa pun (kata sandi, OTP, nomor kartu). Segera bersihkan <i>cache</i> dan <i>cookies</i> peramban Anda. Jika Anda merasa perangkat telah mengunduh sesuatu secara otomatis, segera jalankan pemindaian antivirus secara menyeluruh.</p>
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question">
+                <span>Apakah aman mengunggah data URL saya ke sistem pemindai ini?</span>
+                <i class="fa-solid fa-chevron-down"></i>
+            </div>
+            <div class="faq-answer">
+                <p>Sangat aman. Sistem SafeGuard dirancang murni untuk keperluan riset akademik. Data URL yang Anda uji akan diproses untuk klasifikasi forensik dan disimpan di penyimpanan lokal (Local Storage) perangkat Anda sendiri. Sistem tidak mencatat IP address, riwayat penjelajahan, maupun informasi pribadi responden.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.querySelectorAll('.faq-question').forEach(button => {
+        button.addEventListener('click', () => {
+            const faqItem = button.parentElement;
+            const isActive = faqItem.classList.contains('active');
+
+            document.querySelectorAll('.faq-item').forEach(item => {
+                item.classList.remove('active');
+            });
+
+            if (!isActive) {
+                faqItem.classList.add('active');
+            }
+        });
+    });
+</script>
+
+</body>
+</html>

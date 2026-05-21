@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome - SafeGuard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Ovo&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-dark: #070B14;
+            --primary: #00F2FE; 
+            --primary-glow: rgba(0, 242, 254, 0.3);
+            --text: #F8FAFC;
+            --text-muted: #94A3B8;
+            --muted: #94A3B8;
+            --border: rgba(0, 242, 254, 0.2);
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: 'Ovo', serif;
+            color: var(--text);
+            overflow: hidden;
+            background: linear-gradient(rgba(7, 11, 20, 0.65), rgba(7, 11, 20, 0.7)), url('bg_security.jpeg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+
+        /* ── Navbar ── */
+        nav {
+            background: rgba(7, 11, 20, 0.85);
+            border-bottom: 1px solid rgba(0, 242, 254, 0.15);
+            padding: 14px 0;
+            position: relative;
+            z-index: 10;
+            backdrop-filter: blur(10px);
+        }
+        .nav-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+        }
+        .brand-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-family: 'Inter', sans-serif;
+        }
+        .brand-logo img { width: 32px; height: auto; filter: drop-shadow(0 0 8px rgba(0, 242, 254, 0.5)); }
+        .brand-logo span { font-weight: 800; font-size: 22px; color: #F8FAFC; letter-spacing: -0.5px; }
+        .brand-logo span span { color: var(--primary); }
+        .nav-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            margin-left: 30px;
+            font-weight: 600;
+            font-size: 14px;
+            font-family: 'Inter', sans-serif;
+            transition: 0.3s;
+        }
+        .nav-links a:hover, .nav-links a.active {
+            color: var(--primary);
+            text-shadow: 0 0 8px var(--primary-glow);
+        }
+
+        .glass-card-full {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            height: calc(100vh - 57px);
+            background-color: rgba(7, 11, 20, 0.25); 
+            display: flex;
+            flex-direction: column;
+            padding: 0;
+            margin: 0;
+            animation: fadeIn 1s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .content-inner {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 70px;
+            width: 100%;
+            max-width: 1150px;
+            margin: 0 auto;
+            padding: 40px;
+            flex: 1;
+        }
+
+        .welcome-text {
+            flex: 1;
+            text-align: left;
+        }
+
+        .welcome-image {
+            flex-shrink: 0;
+        }
+
+        .logo-icon {
+            font-size: 55px;
+            color: var(--primary);
+            margin-bottom: 25px;
+            filter: drop-shadow(0 0 15px var(--primary-glow));
+        }
+
+        h1 {
+            font-size: 46px;
+            font-weight: 400;
+            margin: 0 0 20px 0;
+            letter-spacing: 0.5px;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.8);
+        }
+
+        h1 span {
+            color: var(--primary);
+            text-shadow: 0 0 10px var(--primary-glow);
+        }
+
+        p.subtitle {
+            font-size: 19px;
+            color: #E2E8F0;
+            line-height: 1.7;
+            margin-bottom: 45px;
+            max-width: 580px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.6);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: flex-start;
+            flex-wrap: wrap;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .btn {
+            padding: 15px 32px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: #070B14;
+            box-shadow: 0 8px 20px rgba(0, 242, 254, 0.3);
+            border: 1px solid var(--primary);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 25px rgba(0, 242, 254, 0.5);
+            background-color: #33F7FF;
+        }
+
+        .btn-secondary {
+            background-color: rgba(7, 11, 20, 0.6);
+            color: var(--text);
+            border: 1px solid rgba(0, 242, 254, 0.4);
+        }
+
+        .btn-secondary:hover {
+            background-color: rgba(0, 242, 254, 0.1);
+            border-color: var(--primary);
+            color: var(--primary);
+            transform: translateY(-3px);
+        }
+
+        .welcome-image img {
+            width: 310px;
+            height: 390px;
+            object-fit: cover;
+            border-radius: 24px;
+            box-shadow: 0 20px 45px rgba(0,0,0,0.8);
+            border: 1px solid rgba(0, 242, 254, 0.3);
+        }
+
+        .footer-full {
+            width: 100%;
+            text-align: center;
+            padding: 25px 20px;
+            font-size: 12px;
+            color: rgba(0, 242, 254, 0.5);
+            letter-spacing: 2px;
+            font-family: 'Inter', sans-serif;
+            border-top: 1px solid rgba(0, 242, 254, 0.15);
+            background: rgba(7, 11, 20, 0.8);
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="nav-container">
+            <div class="brand-logo">
+                <img src="logo_safeguard.png" alt="Icon">
+                <span>Safe<span>Guard</span>_</span>
+            </div>
+            <div class="nav-links">
+                <a href="scanner.html">Scanner</a>
+                <a href="dashboard.html">Dashboard</a>
+                <a href="dojo.html">Quiz</a>
+                <a href="portal.html">Metodologi</a>
+                <a href="vault.html">Information</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="glass-card-full">
+        <div class="content-inner">
+            <div class="welcome-text">
+                <div class="logo-icon">
+                    <img src="logo_safeguard.png" alt="Logo" style="width: 75px; height: auto; filter: drop-shadow(0 0 12px var(--primary-glow));">
+                </div>
+                <h1>Safe<span>Guard</span></h1>
+                <p class="subtitle">Platform kecerdasan buatan untuk deteksi ancaman <i>phishing</i> dan edukasi forensik siber interaktif. Mari mulai perjalanan keamanan digital Anda.</p>
+                
+                <div class="action-buttons">
+                    <a href="scanner.html" class="btn btn-primary">
+                        <i class="fa-solid fa-crosshairs"></i> Buka Scanner
+                    </a>
+                    <a href="portal.html" class="btn btn-secondary">
+                        <i class="fa-solid fa-compass"></i> Metodologi
+                    </a>
+                </div>
+            </div>
+            
+            <div class="welcome-image">
+                <img src="img_laptop.jpeg" alt="Interface">
+            </div>
+        </div>
+
+        <div class="footer-full">
+            &copy; 2024 SAFEGUARD &mdash; AI-POWERED PHISHING DETECTION SYSTEM
+        </div>
+    </div>
+
+</body>
+</html>

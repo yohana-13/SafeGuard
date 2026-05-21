@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SafeGuard - Quiz Phishing</title>
+    <link href="https://fonts.googleapis.com/css2?family=Ovo&family=Inter:wght@300;400;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-dark: #070B14;
+            --surface-dark: rgba(7, 11, 20, 0.65);
+            --primary: #00F2FE; 
+            --primary-glow: rgba(0, 242, 254, 0.25);
+            --text-light: #F8FAFC;
+            --text-muted: #94A3B8;
+            --border-color: rgba(0, 242, 254, 0.15);
+            --danger: #EF4444;
+            --success: #00F2FE;
+            --warning: #F59E0B;
+        }
+
+        body { 
+            font-family: 'Ovo', serif; color: var(--text-light); margin: 0; padding: 0; min-height: 100vh; position: relative; background-color: var(--bg-dark); z-index: 1; 
+        }
+
+        body::before {
+            content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(rgba(7, 11, 20, 0.75), rgba(7, 11, 20, 0.85)), url('bg_security.jpeg');
+            background-size: cover; background-position: center; filter: blur(8px); transform: scale(1.05); z-index: -1;
+        }
+
+        nav { width: 100%; padding: 15px 0; background: rgba(7, 11, 20, 0.85); border-bottom: 1px solid var(--border-color); position: sticky; top: 0; z-index: 100; }
+        .nav-container { max-width: 1100px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; }
+        .nav-links a { color: var(--text-muted); text-decoration: none; margin-left: 30px; font-weight: 600; font-size: 14px; font-family: 'Inter', sans-serif; transition: 0.3s; }
+        .nav-links a:hover, .nav-links a.active { color: var(--primary); text-shadow: 0 0 8px var(--primary-glow); }
+
+        .container { max-width: 900px; margin: 0 auto; padding: 50px 20px; }
+
+        .game-board {
+            background: var(--surface-dark); border: 1px solid var(--border-color); border-radius: 24px; padding: 40px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.5); text-align: center; position: relative; min-height: 450px;
+        }
+
+        .progress-container { width: 100%; background: rgba(255,255,255,0.05); border-radius: 10px; height: 6px; margin-bottom: 25px; overflow: hidden; }
+        .progress-bar { height: 100%; background: var(--primary); width: 0%; transition: width 0.5s ease-out; box-shadow: 0 0 10px var(--primary-glow); }
+
+        .score-header { position: absolute; top: 25px; right: 30px; background: rgba(0, 242, 254, 0.1); border: 1px solid var(--primary); color: var(--primary); padding: 8px 18px; border-radius: 12px; font-family: 'Inter', sans-serif; font-weight: 800; }
+
+        .scenario-box { font-family: 'Inter', sans-serif; font-size: 15px; color: #E2E8F0; margin: 20px 0; font-style: italic; background: rgba(0,0,0,0.4); padding: 20px; border-left: 4px solid var(--warning); border-radius: 8px; text-align: left; line-height: 1.6; }
+        .scenario-box i { color: var(--warning); margin-right: 8px; }
+
+        .url-display { background: rgba(0,0,0,0.6); border: 2px dashed rgba(0, 242, 254, 0.4); border-radius: 12px; padding: 25px 15px; font-family: 'Fira Code', monospace; font-size: 20px; color: var(--text-light); margin-bottom: 35px; word-break: break-all; transition: 0.3s; }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-10px); }
+            40%, 80% { transform: translateX(10px); }
+        }
+        .shake-effect { animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both; border-color: var(--danger) !important; color: #FCA5A5 !important; background: rgba(239, 68, 68, 0.1); }
+
+        .btn-group { display: flex; justify-content: center; gap: 20px; margin-top: 20px; font-family: 'Inter', sans-serif; flex-wrap: wrap; }
+        .btn { padding: 18px 35px; border-radius: 12px; font-weight: 800; cursor: pointer; transition: 0.3s; border: 2px solid transparent; font-size: 16px; flex: 1; max-width: 250px; }
+        .btn-safe { border-color: var(--primary); color: var(--primary); background: rgba(0, 242, 254, 0.05); }
+        .btn-safe:hover { background: var(--primary); color: var(--bg-dark); box-shadow: 0 0 20px var(--primary-glow); transform: translateY(-3px); }
+        .btn-danger { border-color: var(--danger); color: var(--danger); background: rgba(239, 68, 68, 0.05); }
+        .btn-danger:hover { background: var(--danger); color: white; box-shadow: 0 0 20px rgba(239, 68, 68, 0.3); transform: translateY(-3px); }
+
+        #resultScreen { display: none; animation: slideUp 0.8s ease-out; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
+
+        .trophy-icon { font-size: 80px; color: #FDE047; margin-bottom: 20px; filter: drop-shadow(0 0 20px rgba(253,224,71,0.4)); }
+        
+        .rank-badge { display: inline-block; color: #000; padding: 12px 30px; border-radius: 8px; font-family: 'Inter', sans-serif; font-weight: 900; font-size: 18px; text-transform: uppercase; letter-spacing: 1px; margin-top: 15px; box-shadow: 0 0 20px rgba(255,255,255,0.2); }
+
+        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin: 40px 0; }
+        .stat-box { background: rgba(255,255,255,0.05); padding: 25px; border-radius: 18px; border: 1px solid var(--border-color); }
+        .stat-val { display: block; font-size: 32px; font-weight: 800; color: var(--primary); margin-bottom: 5px; font-family: 'Inter', sans-serif; }
+        .stat-lbl { font-size: 12px; text-transform: uppercase; color: var(--text-muted); letter-spacing: 1px; font-family: 'Inter', sans-serif; }
+
+        .btn-wa { background: #25D366; color: white; padding: 16px 35px; border-radius: 50px; font-weight: 800; cursor: pointer; border: none; font-family: 'Inter', sans-serif; display: flex; align-items: center; justify-content: center; gap: 10px; margin: 0 auto 15px auto; transition: 0.3s; text-decoration: none; width: fit-content; font-size: 16px; }
+        .btn-wa:hover { background: #1EBE5D; transform: translateY(-3px); box-shadow: 0 10px 25px rgba(37, 211, 102, 0.4); }
+
+        .btn-restart { background: transparent; color: var(--text-light); padding: 15px 40px; border-radius: 50px; font-weight: 600; cursor: pointer; border: 1px solid var(--text-muted); font-family: 'Inter', sans-serif; display: flex; align-items: center; gap: 10px; margin: 0 auto 40px auto; transition: 0.3s; }
+        .btn-restart:hover { background: rgba(255,255,255,0.1); border-color: var(--text-light); }
+
+        .review-section { text-align: left; border-top: 1px solid var(--border-color); padding-top: 40px; }
+        .review-section h3 { font-family: 'Inter', sans-serif; font-size: 18px; margin-bottom: 20px; color: var(--primary); display: flex; align-items: center; gap: 10px; }
+        .review-item { background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); padding: 15px 20px; border-radius: 12px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
+        .review-url { font-family: 'Fira Code', monospace; font-size: 13px; color: #CBD5E1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 70%; }
+        .review-badge { font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 800; padding: 4px 12px; border-radius: 6px; text-transform: uppercase; }
+        .badge-aman { background: rgba(0,242,254,0.1); color: var(--primary); border: 1px solid var(--primary); }
+        .badge-bahaya { background: rgba(239,68,68,0.1); color: var(--danger); border: 1px solid var(--danger); }
+
+        #feedbackArea { display: none; margin-top: 30px; text-align: left; background: rgba(0,0,0,0.5); padding: 25px; border-radius: 15px; border: 1px solid var(--border-color); animation: fadeIn 0.5s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        
+        .btn-next { background: var(--primary); color: #000; padding: 12px 25px; border-radius: 8px; font-weight: 800; border: none; cursor: pointer; font-family: 'Inter', sans-serif; margin-top: 20px; transition: 0.3s; }
+        .btn-next:hover { box-shadow: 0 0 15px var(--primary-glow); transform: translateX(5px); }
+    </style>
+</head>
+<body>
+
+<nav>
+    <div class="nav-container">
+        <div class="brand-logo" style="display: flex; align-items: center; gap: 12px; font-family: 'Inter', sans-serif;">
+            <img src="logo_safeguard.png" alt="Icon" style="width: 32px; height: auto;">
+            <span style="font-weight: 800; font-size: 22px; color: #F8FAFC;">Safe<span style="color: var(--primary);">Guard</span>_</span>
+        </div>
+        <div class="nav-links">
+            <a href="index.html">Scanner</a>
+            <a href="dashboard.html">Dashboard</a>
+            <a href="dojo.html" class="active">Quiz</a>
+            <a href="portal.html">Metodologi</a>
+            <a href="vault.html">Information</a>
+        </div>
+    </div>
+</nav>
+
+<div class="container">
+    
+    <div id="quizScreen">
+        <div style="text-align: center; margin-bottom: 40px;">
+            <h1 style="font-size: 36px; margin-bottom: 10px;">Simulasi Insting Keamanan</h1>
+            <p style="color: var(--text-muted); font-family: 'Inter'; font-size: 15px; max-width: 600px; margin: 0 auto;">Uji ketajaman insting kamu dalam mengenali skenario pesan penipuan di dunia nyata.</p>
+        </div>
+
+        <div class="game-board">
+            <div class="progress-container"><div class="progress-bar" id="progressBar"></div></div>
+            <div class="score-header">SEC_SCORE : <span id="liveScore">0</span></div>
+            
+            <div style="font-family:'Inter'; font-size:13px; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px; margin-bottom: 10px;" id="caseCounter">Latihan 1 / 10</div>
+            
+            <div class="scenario-box" id="scenarioDisplay">Memuat skenario...</div>
+            
+            <div class="url-display" id="urlDisplay">Memuat...</div>
+
+            <div id="actionArea">
+                <p style="font-size: 18px; margin-bottom: 25px; font-family: 'Inter', sans-serif;">Menurut kamu, apakah link di atas aman untuk diklik?</p>
+                <div class="btn-group">
+                    <button class="btn btn-safe" onclick="submitAnswer(true)"><i class="fa-solid fa-shield-check"></i> AMAN (ASLI)</button>
+                    <button class="btn btn-danger" onclick="submitAnswer(false)"><i class="fa-solid fa-triangle-exclamation"></i> BAHAYA (PALSU)</button>
+                </div>
+            </div>
+
+            <div id="feedbackArea">
+                <h2 id="feedbackTitle" style="margin-top:0; font-family: 'Inter', sans-serif;">Benar!</h2>
+                <p id="feedbackText" style="color:#CBD5E1; line-height:1.7; font-family: 'Inter', sans-serif; font-size: 15px;"></p>
+                <button class="btn-next" onclick="loadNextCase()">Lanjut Latihan <i class="fa-solid fa-arrow-right"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <div id="resultScreen">
+        <div class="game-board">
+            <div class="trophy-icon"><i class="fa-solid fa-trophy"></i></div>
+            <h1 id="resultHeading" style="font-size: 38px; margin-bottom: 5px;">Latihan Selesai!</h1>
+            <p style="color:var(--text-muted); font-family: 'Inter', sans-serif; margin-bottom: 25px;">Berikut adalah hasil evaluasi insting siber kamu.</p>
+            
+            <div class="rank-badge" id="rankBadge">Memuat Gelar...</div>
+
+            <div class="stats-grid">
+                <div class="stat-box"><span class="stat-val" id="finalScore">0</span><span class="stat-lbl">Total Skor</span></div>
+                <div class="stat-box"><span class="stat-val" id="finalCorrect" style="color: #10B981;">0</span><span class="stat-lbl">Tebakan Benar</span></div>
+                <div class="stat-box"><span class="stat-val" id="finalMissed" style="color:var(--danger);">0</span><span class="stat-lbl">Terkecoh</span></div>
+            </div>
+
+            <button class="btn-restart" onclick="location.reload()">
+                <i class="fa-solid fa-rotate-right"></i> Ulangi Latihan dari Awal
+            </button>
+
+            <div class="review-section">
+                <h3><img src="logo_safeguard.png" style="width:20px;"> Daftar Tinjauan Jawaban</h3>
+                <p style="font-family: 'Inter'; font-size: 14px; color: var(--text-muted); margin-bottom: 20px;">Status di sebelah kanan menunjukkan sifat <b>asli</b> dari link tersebut.</p>
+                <div id="reviewContainer">
+                    </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    const cases = [
+        { 
+            scenario: "<i class='fa-solid fa-message'></i> SMS Baru: 'Paket J&T Anda tertahan di gudang karena alamat tidak lengkap. Mohon perbarui alamat pengiriman Anda segera di link berikut:'",
+            url: "http://jnt-lacak-paket.id-update.com", 
+            isSafe: false, 
+            explanation: "Tebakan tepat! Penipu sengaja membuat nama panjang. Alamat kurir resmi biasanya singkat dan tidak menggunakan kata-kata aneh di belakangnya." 
+        },
+        { 
+            scenario: "<i class='fa-brands fa-whatsapp'></i> Pesan WA dari teman: 'Eh, lihat deh ada promo diskon sepatu 70% di Tokopedia khusus hari ini aja!'",
+            url: "https://www.tokopedia.com/promo-mingguan", 
+            isSafe: true, 
+            explanation: "Ini asli. Penulisannya tepat ('tokopedia.com') dan ada tanda 'https' (sistem gembok aman)." 
+        },
+        { 
+            scenario: "<i class='fa-solid fa-envelope'></i> Email dari 'Facebook Security': 'Akun Anda akan dinonaktifkan dalam 24 jam karena melanggar pedoman komunitas. Verifikasi wajah Anda di sini:'",
+            url: "https://face-id-verification-panel.net/secure/login.php", 
+            isSafe: false, 
+            explanation: "Ini penipuan yang memancing kepanikan. Alamat aslinya adalah 'verification-panel.net', sama sekali tidak ada hubungannya dengan situs resmi Facebook." 
+        },
+        { 
+            scenario: "<i class='fa-solid fa-message'></i> SMS Baru: 'Tunggakan BPJS Kesehatan Anda bulan ini belum dibayar. Cek rincian denda Anda di sini:'",
+            url: "https://bpjs-kesehatan.go.id/bpjs/index.php", 
+            isSafe: true, 
+            explanation: "Ini situs resmi yang aman. Tanda utamanya adalah akhiran '.go.id' yang hanya bisa dimiliki secara eksklusif oleh lembaga pemerintahan Republik Indonesia." 
+        },
+        { 
+            scenario: "<i class='fa-brands fa-instagram'></i> Pesan di Instagram: 'Halo Kak, akun Anda terpilih mendapat lencana Biru (Verified). Klik link ini untuk klaim:'",
+            url: "https://instagram-verify-badge.online/account", 
+            isSafe: false, 
+            explanation: "Palsu. Meski ada kata 'instagram' di depan, akhiran '.online' adalah ekstensi murah yang sering dibeli penipu untuk menjebak korban." 
+        },
+        { 
+            scenario: "<i class='fa-solid fa-message'></i> SMS dari 'Bank BNI': 'Selamat! Nomor Anda terpilih memenangkan undian 50 Juta. Klaim hadiah Anda sekarang:'",
+            url: "http://hadiah-kejutan-bni.com", 
+            isSafe: false, 
+            explanation: "Sangat berbahaya. Pertama, tidak ada huruf 's' pada 'http'. Kedua, bank resmi tidak akan menyuruh nasabah mengambil hadiah melalui website antah berantah." 
+        },
+        { 
+            scenario: "<i class='fa-brands fa-whatsapp'></i> Chat dari Nomor Tidak Dikenal: 'Halo Ibu, ini wali kelas Budi. Mohon buka surat undangan rapat orang tua wali di bawah ini:'",
+            url: "https://drive.google.com/file/d/undangan-rapat", 
+            isSafe: true, 
+            explanation: "Aman. Ini adalah tautan resmi dari Google Drive yang biasa digunakan untuk berbagi file dokumen yang sah." 
+        },
+        { 
+            scenario: "<i class='fa-solid fa-envelope'></i> Email peringatan: 'Aktivitas masuk mencurigakan terdeteksi di akun PayPal Anda. Segera amankan akun Anda:'",
+            url: "https://paypal-secure-login-verify-account.xyz/confirm", 
+            isSafe: false, 
+            explanation: "Penipuan. Alamat web berakhiran '.xyz' sangat sering digunakan untuk tindakan pencurian data di luar negeri." 
+        },
+        { 
+            scenario: "<i class='fa-solid fa-message'></i> SMS dari 'PLN': 'Pelanggan Yth, tagihan listrik Anda membengkak. Silakan cek rincian tagihan PLN Mobile Anda di sini:'",
+            url: "https://pln-mobile-layanan-pelanggan.com", 
+            isSafe: false, 
+            explanation: "Palsu. PLN yang resmi menggunakan layanan aplikasi langsung atau website berakhiran .co.id, bukan .com yang bisa dibuat sembarangan oleh peretas." 
+        },
+        { 
+            scenario: "<i class='fa-brands fa-whatsapp'></i> Chat Olshop: 'Terima kasih telah order Kak. Jika ada keluhan, bisa langsung menghubungi CS kami melalui link WhatsApp berikut:'",
+            url: "https://wa.me/6281211223344", 
+            isSafe: true, 
+            explanation: "Aman. 'wa.me' adalah jalan pintas resmi dan aman yang disediakan oleh WhatsApp untuk membuka ruang obrolan." 
+        }
+    ];
+
+    let currentIndex = 0;
+    let score = 0;
+    let correctCount = 0;
+    let missedCount = 0;
+    let userLogs = [];
+
+    const quizScreen = document.getElementById('quizScreen');
+    const resultScreen = document.getElementById('resultScreen');
+    const urlDisplay = document.getElementById('urlDisplay');
+    const scenarioDisplay = document.getElementById('scenarioDisplay');
+    const caseCounter = document.getElementById('caseCounter');
+    const feedbackArea = document.getElementById('feedbackArea');
+    const actionArea = document.getElementById('actionArea');
+    const feedbackTitle = document.getElementById('feedbackTitle');
+    const feedbackText = document.getElementById('feedbackText');
+    const liveScore = document.getElementById('liveScore');
+    const progressBar = document.getElementById('progressBar');
+
+    function loadCase() {
+        if (currentIndex < cases.length) {
+            const progress = ((currentIndex) / cases.length) * 100;
+            progressBar.style.width = progress + '%';
+
+            scenarioDisplay.innerHTML = cases[currentIndex].scenario;
+            urlDisplay.innerText = cases[currentIndex].url;
+            caseCounter.innerText = `Latihan ${currentIndex + 1} / ${cases.length}`;
+            
+            actionArea.style.display = 'block';
+            feedbackArea.style.display = 'none';
+        } else {
+            progressBar.style.width = '100%';
+            showResults();
+        }
+    }
+
+    function submitAnswer(userSaysSafe) {
+        const currentCase = cases[currentIndex];
+        const isCorrect = (userSaysSafe === currentCase.isSafe);
+        
+        userLogs.push({ url: currentCase.url, isSafe: currentCase.isSafe, isCorrect: isCorrect });
+
+        actionArea.style.display = 'none';
+
+        if (isCorrect) {
+            score += 250;
+            correctCount++;
+            feedbackTitle.innerHTML = `<i class="fa-solid fa-circle-check"></i> Insting Tepat!`;
+            feedbackTitle.style.color = "var(--primary)";
+            feedbackArea.style.borderColor = "var(--primary)";
+        } else {
+            missedCount++;
+            feedbackTitle.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> Hati-hati, Terkecoh!`;
+            feedbackTitle.style.color = "#FCA5A5";
+            feedbackArea.style.borderColor = "var(--danger)";
+            
+            urlDisplay.classList.add('shake-effect');
+            setTimeout(() => { urlDisplay.classList.remove('shake-effect'); }, 600);
+        }
+        
+        feedbackText.innerHTML = currentCase.explanation;
+        liveScore.innerText = score;
+        feedbackArea.style.display = 'block';
+    }
+
+    function loadNextCase() {
+        currentIndex++;
+        loadCase();
+    }
+
+    function showResults() {
+        quizScreen.style.display = 'none';
+        resultScreen.style.display = 'block';
+
+        document.getElementById('finalScore').innerText = score;
+        document.getElementById('finalCorrect').innerText = correctCount;
+        document.getElementById('finalMissed').innerText = missedCount;
+
+        // Pangkat Dinamis
+        let rankName = "";
+        let rankColor = "";
+        if(correctCount <= 3) {
+            rankName = "Pemula Siber";
+            rankColor = "linear-gradient(90deg, #94A3B8, #64748B)";
+        } else if (correctCount <= 7) {
+            rankName = "Warga Digital Waspada";
+            rankColor = "linear-gradient(90deg, #60A5FA, #3B82F6)";
+        } else {
+            rankName = "Cyber Range Master";
+            rankColor = "linear-gradient(90deg, #FDE047, #F97316)";
+        }
+        
+        const rankElement = document.getElementById('rankBadge');
+        rankElement.innerText = rankName;
+        rankElement.style.background = rankColor;
+
+        if (missedCount === 0) {
+            document.getElementById('resultHeading').innerText = "Sempurna!";
+        }
+
+        const container = document.getElementById('reviewContainer');
+        container.innerHTML = '';
+        userLogs.forEach(log => {
+            container.innerHTML += `
+                <div class="review-item" style="border-left: 4px solid ${log.isCorrect ? 'var(--primary)' : 'var(--danger)'}">
+                    <div class="review-url">${log.url}</div>
+                    <div class="review-badge ${log.isSafe ? 'badge-aman' : 'badge-bahaya'}">
+                        ${log.isSafe ? 'Aman' : 'Bahaya'}
+                    </div>
+                </div>
+            `;
+        });
+    }
+
+
+    window.onload = loadCase;
+</script>
+</body>
+</html>

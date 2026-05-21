@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SafeGuard - Metodologi</title>
+    <link href="https://fonts.googleapis.com/css2?family=Ovo&family=Inter:wght@300;400;600;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-dark: #070B14; 
+            --surface-dark: rgba(7, 11, 20, 0.65); 
+            --primary: #00F2FE; 
+            --primary-glow: rgba(0, 242, 254, 0.25); 
+            --text-light: #F8FAFC; 
+            --text-muted: #94A3B8;
+            --border-color: rgba(0, 242, 254, 0.15); 
+        }
+
+        body {
+            font-family: 'Ovo', serif;
+            color: var(--text-light);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            position: relative;
+            background-color: var(--bg-dark);
+            z-index: 1;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(rgba(7, 11, 20, 0.75), rgba(7, 11, 20, 0.85)), url('bg_security.jpeg'); 
+            background-size: cover; 
+            background-position: center; 
+            filter: blur(8px); 
+            transform: scale(1.05); 
+            z-index: -1; 
+        }
+
+        nav { 
+            width: 100%; 
+            padding: 15px 0; 
+            background: rgba(7, 11, 20, 0.85); 
+            border-bottom: 1px solid var(--border-color); 
+            position: sticky; 
+            top: 0; 
+            z-index: 100; 
+        }
+        
+        .nav-container { 
+            max-width: 1100px; 
+            margin: 0 auto; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            padding: 0 20px; 
+        }
+        
+        .nav-links a { 
+            color: var(--text-muted); 
+            text-decoration: none; 
+            margin-left: 30px; 
+            font-weight: 600; 
+            font-size: 14px; 
+            font-family: 'Inter', sans-serif;
+            transition: 0.3s; 
+        }
+        
+        .nav-links a:hover, .nav-links a.active { 
+            color: var(--primary); 
+            text-shadow: 0 0 8px var(--primary-glow);
+        }
+
+        .container { max-width: 1000px; margin: 0 auto; padding: 60px 20px; }
+        
+        .hero-section { text-align: center; margin-bottom: 60px; animation: fadeIn 1s ease-out; }
+        .hero-section h1 { font-size: 42px; margin-bottom: 10px; color: var(--text-light); text-shadow: 0 2px 5px rgba(0,0,0,0.5); }
+        .hero-section p { color: var(--primary); font-size: 16px; font-family: 'Inter', sans-serif; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card { 
+            background: var(--surface-dark); 
+            border: 1px solid var(--border-color); 
+            border-radius: 20px; 
+            padding: 40px; 
+            margin-bottom: 40px; 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+            animation: fadeIn 1s ease-out;
+        }
+
+        .card-header { display: flex; align-items: center; gap: 15px; margin-bottom: 25px; border-bottom: 1px solid rgba(0, 242, 254, 0.1); padding-bottom: 15px; }
+        .card-header img { width: 30px; height: auto; filter: drop-shadow(0 0 5px var(--primary-glow)); }
+        .card-header h2 { color: var(--primary); font-size: 24px; margin: 0; text-shadow: 0 0 10px var(--primary-glow); }
+
+        .card p { font-size: 16px; line-height: 1.8; color: #E2E8F0; margin-bottom: 20px; }
+        .card strong { color: var(--primary); font-weight: bold; }
+
+        .split-layout { display: flex; gap: 40px; align-items: center; }
+        .split-text { flex: 1; }
+        .split-image { flex: 1; text-align: center; }
+        .split-image img { width: 100%; max-width: 350px; border-radius: 16px; border: 1px solid var(--border-color); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        
+        @media (max-width: 768px) {
+            .split-layout { flex-direction: column; }
+            .split-image img { max-width: 100%; }
+        }
+
+        .formula-box { 
+            background: rgba(0, 0, 0, 0.4); 
+            padding: 20px; 
+            border-radius: 12px; 
+            font-family: 'Fira Code', monospace; 
+            color: var(--primary); 
+            margin: 20px 0; 
+            font-size: 15px; 
+            border-left: 4px solid var(--primary);
+            overflow-x: auto;
+        }
+
+        .feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-top: 25px; }
+        .feat-item { background: rgba(0,242,254,0.03); padding: 20px; border-radius: 12px; border: 1px solid rgba(0,242,254,0.1); border-top: 3px solid var(--primary); transition: transform 0.3s; }
+        .feat-item:hover { transform: translateY(-3px); background: rgba(0,242,254,0.06); }
+        .feat-item h4 { margin: 0 0 10px 0; color: var(--text-light); font-family: 'Inter', sans-serif; font-size: 15px; display: flex; align-items: center; gap: 8px; }
+        .feat-item p { margin: 0; font-size: 14px; color: var(--text-muted); line-height: 1.6; }
+
+        .research-badge { display: inline-flex; align-items: center; gap: 10px; background: rgba(16,185,129,0.1); border: 1px solid #10B981; color: #10B981; padding: 8px 16px; border-radius: 50px; font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 600; margin-top: 15px; }
+
+        .footer-full { width: 100%; text-align: center; padding: 25px 20px; font-size: 12px; color: rgba(0, 242, 254, 0.4); letter-spacing: 2px; font-family: 'Inter', sans-serif; border-top: 1px solid var(--border-color); background: rgba(7, 11, 20, 0.8); }
+  
+     a:hover .research-badge {
+    background: rgba(16,185,129,0.2); 
+    transform: scale(1.05); 
+    box-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
+}
+  </style>
+
+</head>
+<body>
+
+<nav>
+    <div class="nav-container">
+        <div class="brand-logo" style="display: flex; align-items: center; gap: 12px; font-family: 'Inter', sans-serif;">
+            <img src="logo_safeguard.png" alt="SafeGuard Icon" style="width: 32px; height: auto; filter: drop-shadow(0 0 8px rgba(0, 242, 254, 0.5));">
+            <span style="font-weight: 800; font-size: 22px; letter-spacing: -0.5px; color: #F8FAFC;">Safe<span style="color: var(--primary);">Guard</span>_</span>
+        </div>
+        <div class="nav-links">
+            <a href="scanner.html">Scanner</a>
+            <a href="dashboard.html">Dashboard</a>
+            <a href="dojo.html">Quiz</a>
+            <a href="portal.html" class="active">Metodologi</a>
+            <a href="vault.html">Information</a>
+        </div>
+    </div>
+</nav>
+
+<div class="container">
+    <div class="hero-section">
+        <h1>Arsitektur Sistem & Metodologi</h1>
+        <p>Dokumentasi Teknis Machine Learning & Forensik Digital</p>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <img src="logo_safeguard.png" alt="Logo">
+            <h2>Algoritma Decision Tree C4.5</h2>
+        </div>
+        <div class="split-layout">
+            <div class="split-text">
+                <p>Sistem klasifikasi pada SafeGuard Pro Suite digerakkan oleh algoritma kecerdasan buatan <strong>C4.5 (Pohon Keputusan)</strong>. Berbeda dengan pendahulunya (ID3), C4.5 dipilih karena ketahanannya dalam menangani data atribut kontinu dan kelengkapan data yang hilang <em>(Missing Values)</em>.</p>
+                <p>Proses induksi pohon dilakukan dengan mengevaluasi pemisahan atribut menggunakan metrik <strong>Information Gain Ratio</strong>. Fitur dengan nilai Gain tertinggi akan otomatis ditetapkan sebagai akar simpul <em>(root node)</em>.</p>
+                
+                <div class="formula-box">
+                    Gain(S, A) = Entropy(S) - Σ (|Sv| / |S|) * Entropy(Sv)
+                </div>
+                
+                <p style="font-size: 14px; color: var(--text-muted);">*Dimana <strong>S</strong> adalah himpunan kasus, <strong>A</strong> adalah atribut, dan <strong>Sv</strong> adalah subset dari S untuk nilai atribut tertentu.</p>
+            </div>
+       <div class="split-image">
+    <video width="100%" autoplay loop muted playsinline style="border-radius: 16px; border: 1px solid var(--border-color); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); display: block;">
+        <source src="video_ai.mp4" type="video/mp4">
+        Browser Anda tidak mendukung pemutar video.
+    </video>
+</div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <img src="logo_safeguard.png" alt="Logo">
+            <h2>Dataset UCI & Ekstraksi Fitur Dinamis</h2>
+        </div>
+        <p>Model AI telah dilatih dan divalidasi menggunakan dataset standar internasional <strong>UCI Phishing Websites</strong> yang memuat 30 fitur topologi web. Untuk memastikan keakuratan deteksi secara <em>real-time</em>, peladen backend (Python Flask) menggunakan pustaka <strong>BeautifulSoup</strong> dan <strong>Live WHOIS API</strong> untuk mengekstrak 5 pilar fitur utama saat URL dipindai:</p>
+        
+        <div class="feature-grid">
+            <div class="feat-item">
+                <h4><i class="fa-solid fa-lock"></i> SSLfinal_State</h4>
+                <p>Menganalisis validitas rantai sertifikat HTTPS/SSL dan memverifikasi otoritas penerbitnya untuk mendeteksi enkripsi palsu.</p>
+            </div>
+            <div class="feat-item">
+                <h4><i class="fa-solid fa-link"></i> URL_of_Anchor</h4>
+                <p>Menghitung persentase tautan (anchor) di dalam web yang mengarah ke domain asing (berbeda dari domain utama induknya).</p>
+            </div>
+            <div class="feat-item">
+                <h4><i class="fa-solid fa-code"></i> Iframe Redirection</h4>
+                <p>Melacak injeksi tag <code>&lt;iframe&gt;</code> tersembunyi (tanpa batas tepi/border) yang sering digunakan untuk eksekusi skrip otomatis.</p>
+            </div>
+            <div class="feat-item">
+                <h4><i class="fa-solid fa-clock-rotate-left"></i> WHOIS Domain Age</h4>
+                <p>Mengekstrak tanggal pendaftaran domain <em >real-time</em>. Domain yang baru didaftarkan (kurang dari 6 bulan) akan diberi bobot risiko tinggi (-1).</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <img src="logo_safeguard.png" alt="Logo">
+            <h2>Evaluasi Riset</h2>
+        </div>
+        <div class="split-layout">
+            <div class="split-image">
+                <img src="img_user.jpeg" alt="Cybersecurity Flow">
+            </div>
+            <div class="split-text">
+                <p>SafeGuard bukan sekadar pemindai pasif. Melalui <strong>Modul Tactical Dojo</strong>, kami mengintegrasikan <em>Explainable AI (XAI)</em> dengan konsep gamifikasi penguatan positif (+250 Poin `SEC_SCORE`) tanpa penalti pengurang poin.</p>
+                <p>Pendekatan desain antarmuka <em>Human-Computer Interaction (HCI)</em> ini secara spesifik dirancang untuk menekan tingkat kecemasan pengguna (<em>User Anxiety</em>) dalam menghadapi ancaman forensik siber yang rumit.</p>
+                
+                <a href="https://forms.gle/uSoM86p9G2oS3Lzd8" target="_blank" style="text-decoration: none;">
+    <div class="research-badge" style="cursor: pointer; transition: 0.3s; display: inline-flex; align-items: center; gap: 10px; background: rgba(16,185,129,0.1); border: 1px solid #10B981; color: #10B981; padding: 8px 16px; border-radius: 50px; font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 600; margin-top: 15px;">
+        <i class="fa-solid fa-users-viewfinder"></i> Instrumen Riset Aktif: 25 Responden
+    </div>
+</a>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+</body>
+</html>

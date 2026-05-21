@@ -1,0 +1,8 @@
+flask
+flask-cors
+beautifulsoup4
+requests
+python-whois
+pandas
+scikit-learn
+gunicorn
