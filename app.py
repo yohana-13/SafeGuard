@@ -30,13 +30,32 @@ def get_real_domain_age(domain_name):
     try:
         if domain_name in ['127.0.0.1', 'localhost'] or domain_name.startswith('192.168.'):
             return -1 
-        w = whois.whois(domain_name)
-        creation_date = w.creation_date
-        if isinstance(creation_date, list):
-            creation_date = creation_date 
+
+        creation_date = None
+        
+        try:
+            rdap_url = f"https://rdap.org/domain/{domain_name}"
+            res = requests.get(rdap_url, timeout=5)
+            if res.status_code == 200:
+                data = res.json()
+                for event in data.get('events', []):
+                    if event.get('eventAction') == 'registration':
+                        date_str = event.get('eventDate')
+                        creation_date = pd.to_datetime(date_str).tz_localize(None)
+                        break
+        except Exception:
+            pass 
+            
+        if creation_date is None:
+            w = whois.whois(domain_name)
+            creation_date = w.creation_date
+            if isinstance(creation_date, list):
+                creation_date = creation_date 
+                
         if creation_date:
             age_days = (datetime.now() - creation_date).days
             return 1 if age_days >= 180 else -1
+            
     except Exception:
         return 0 
     return 1
@@ -132,13 +151,13 @@ def scan_url():
         rules = []
         if ssl_status == -1: rules.append("Situs beroperasi tanpa sertifikat keamanan HTTPS/SSL.")
         if age_domain_val == -1: rules.append("Domain berumur kritis (Kurang dari 6 bulan).")
-        if age_domain_val == 0: rules.append("Catatan registrasi WHOIS domain disembunyikan atau tidak merespons.")
+        if age_domain_val == 0: rules.append("Catatan registrasi domain disembunyikan atau menggunakan proteksi privasi.")
         if url_anchor_val == -1: rules.append(f"Lebih dari 67% tautan mengarah ke luar domain ({round(link_ratio*100,1)}%).")
         if iframe_val == -1: rules.append("Ditemukan injeksi skrip Iframe siluman (display:none/0px).")
         if sfh_val == -1: rules.append("Formulir pengisian data mengirimkan kredensial ke server asing.")
         
         if len(rules) == 0 and status == "Aman":
-            rules.append("Struktur DOM normal, rekam jejak WHOIS valid, dan enkripsi terverifikasi.")
+            rules.append("Struktur DOM normal, rekam jejak registrasi valid, dan enkripsi terverifikasi.")
         elif status == "Phishing" and len(rules) == 0:
             rules.append("Anomali topologi terdeteksi oleh Pohon Keputusan C4.5.")
 
