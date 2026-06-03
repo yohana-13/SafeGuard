@@ -121,8 +121,8 @@ def scan_url():
         if sfh_val == -1: anomali_kritis += 1
         if url_anchor_val == -1: anomali_kritis += 1
 
-        if prediksi_angka == 1 and anomali_kritis >= 1:
-            prediksi_angka = -1 # PAKSA MENJADI PHISHING
+        if prediksi_angka == 1 and (ssl_status == -1 or anomali_kritis >= 2):
+            prediksi_angka = -1 
             confidence = min(98.5, 75.0 + (anomali_kritis * 7.5)) 
 
         status = "Phishing" if (prediksi_angka == -1 or is_mock_test) else "Aman"
