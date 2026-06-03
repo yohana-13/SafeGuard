@@ -141,7 +141,15 @@ def scan_url():
         if url_anchor_val == -1: anomali_kritis += 1
         if age_domain_val == -1: anomali_kritis += 1
 
-        domain_aman = ['google.com', 'gemini.google.com', 'unimed.ac.id', 'github.com']
+        domain_aman = [
+            'google.com', 'google.co.id', 'gemini.google.com', 'bing.com', 'yahoo.com', 'microsoft.com', 'apple.com',
+            'github.com', 'gitlab.com', 'vercel.app', 'railway.app', 'kaggle.com', 'dicoding.com', 'codewars.com', 'stackoverflow.com',
+            'youtube.com', 'facebook.com', 'instagram.com', 'twitter.com', 'x.com', 'tiktok.com', 'linkedin.com', 'whatsapp.com', 'netflix.com', 'roblox.com', 'spotify.com',
+            'unimed.ac.id', 'usu.ac.id', 'ui.ac.id', 'itb.ac.id', 'ugm.ac.id', 'kemdikbud.go.id', 'scholar.google.com', 'researchgate.net', 'academia.edu',
+            'canva.com', 'canva.link', 'figma.com', 'bit.ly', 'tinyurl.com', 's.id', 'cutt.ly', 'linktr.ee',
+            'tokopedia.com', 'shopee.co.id', 'bca.co.id', 'bankmandiri.co.id', 'bri.co.id', 'bni.co.id', 'pln.co.id',
+            'kompas.com', 'detik.com', 'tribunnews.com', 'cnnindonesia.com', 'kumparan.com', 'merdeka.com', 'liputan6.com', 'wikipedia.org'
+        ]
         is_whitelisted = any(d in domain for d in domain_aman)
 
         if is_whitelisted:
