@@ -11,7 +11,7 @@ import whois
 from datetime import datetime
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-warnings.filterwarnings("ignore") 
+warnings.filterwarnings("ignore")
 
 app = Flask(__name__)
 CORS(app, resources={r"/api/*": {"origins": "*"}})
@@ -29,10 +29,10 @@ except Exception:
 def get_real_domain_age(domain_name):
     try:
         if domain_name in ['127.0.0.1', 'localhost'] or domain_name.startswith('192.168.'):
-            return -1 
+            return -1
 
         creation_date = None
-        
+
         try:
             rdap_url = f"https://rdap.org/domain/{domain_name}"
             res = requests.get(rdap_url, timeout=5)
@@ -44,20 +44,20 @@ def get_real_domain_age(domain_name):
                         creation_date = pd.to_datetime(date_str).tz_localize(None)
                         break
         except Exception:
-            pass 
-            
+            pass
+
         if creation_date is None:
             w = whois.whois(domain_name)
             creation_date = w.creation_date
             if isinstance(creation_date, list):
-                creation_date = creation_date 
-                
+                creation_date = creation_date
+
         if creation_date:
             age_days = (datetime.now() - creation_date).days
             return 1 if age_days >= 180 else -1
-            
+
     except Exception:
-        return 0 
+        return 0
     return 1
 
 @app.route('/api/scan', methods=['POST'])
@@ -73,10 +73,10 @@ def scan_url():
     try:
         parsed_url = urlparse(url)
         domain = parsed_url.netloc
-        
+
         ssl_status = 1 if url.startswith('https://') else -1
         age_domain_val = get_real_domain_age(domain)
-        
+
         url_anchor_val = 1
         iframe_val = 1
         sfh_val = 1
@@ -85,7 +85,7 @@ def scan_url():
         try:
             response = requests.get(url, timeout=10, headers={'User-Agent': 'Mozilla/5.0'}, verify=False)
             soup = BeautifulSoup(response.text, 'html.parser')
-            
+
             total_links = 0
             external_links = 0
             for a_tag in soup.find_all('a', href=True):
@@ -95,13 +95,13 @@ def scan_url():
                     external_links += 1
             link_ratio = external_links / total_links if total_links > 0 else 0.0
             url_anchor_val = -1 if link_ratio > 0.67 else (0 if link_ratio > 0.31 else 1)
-            
+
             for iframe in soup.find_all('iframe'):
                 style = iframe.get('style', '')
                 if iframe.get('width') == '0' or 'display:none' in style:
                     iframe_val = -1
                     break
-                    
+
             for form in soup.find_all('form', action=True):
                 action = form['action']
                 if action.startswith(('http://', 'https://')) and domain not in action:
@@ -111,7 +111,7 @@ def scan_url():
             pass
 
         feature_dict = {feat: 1 for feat in ai_features}
-        
+
         if 'SSLfinal_State' in feature_dict: feature_dict['SSLfinal_State'] = ssl_status
         if 'URL_of_Anchor' in feature_dict: feature_dict['URL_of_Anchor'] = url_anchor_val
         if 'Iframe' in feature_dict: feature_dict['Iframe'] = iframe_val
@@ -119,19 +119,19 @@ def scan_url():
         if 'age_of_domain' in feature_dict: feature_dict['age_of_domain'] = age_domain_val
 
         is_mock_test = "mock" in url.lower() or "test" in url.lower() or "127.0.0.1" in url
-        
+
         X_input = pd.DataFrame([feature_dict])
-        
+
         try:
             prediksi_angka = int(ai_model.predict(X_input).tolist())
         except:
             prediksi_angka = int(ai_model.predict(X_input))
-            
+
         try:
             confidence_val = float(ai_model.predict_proba(X_input).max().item())
         except:
             confidence_val = float(ai_model.predict_proba(X_input).max())
-            
+
         confidence = round(confidence_val * 100, 1)
 
         anomali_kritis = 0
@@ -140,9 +140,17 @@ def scan_url():
         if sfh_val == -1: anomali_kritis += 1
         if url_anchor_val == -1: anomali_kritis += 1
 
-        if prediksi_angka == 1 and (ssl_status == -1 or anomali_kritis >= 2):
-            prediksi_angka = -1 
-            confidence = min(98.5, 75.0 + (anomali_kritis * 7.5)) 
+        domain_aman = ['google.com', 'gemini.google.com', 'unimed.ac.id', 'github.com']
+        is_whitelisted = any(d in domain for d in domain_aman)
+
+        if is_whitelisted:
+            if prediksi_angka == 1 and (ssl_status == -1 or anomali_kritis >= 2):
+                prediksi_angka = -1
+                confidence = min(98.5, 75.0 + (anomali_kritis * 7.5))
+        else:
+            if prediksi_angka == 1 and anomali_kritis >= 1:
+                prediksi_angka = -1
+                confidence = min(98.5, 75.0 + (anomali_kritis * 7.5))
 
         status = "Phishing" if (prediksi_angka == -1 or is_mock_test) else "Aman"
         if is_mock_test:
@@ -155,7 +163,7 @@ def scan_url():
         if url_anchor_val == -1: rules.append(f"Lebih dari 67% tautan mengarah ke luar domain ({round(link_ratio*100,1)}%).")
         if iframe_val == -1: rules.append("Ditemukan injeksi skrip Iframe siluman (display:none/0px).")
         if sfh_val == -1: rules.append("Formulir pengisian data mengirimkan kredensial ke server asing.")
-        
+
         if len(rules) == 0 and status == "Aman":
             rules.append("Struktur DOM normal, rekam jejak registrasi valid, dan enkripsi terverifikasi.")
         elif status == "Phishing" and len(rules) == 0:
