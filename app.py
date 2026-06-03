@@ -37,7 +37,7 @@ def get_real_domain_age(domain_name):
         creation_date = w.creation_date
         
         if isinstance(creation_date, list):
-            creation_date = creation_date
+            creation_date = creation_date # Memastikan mengambil tanggal pertama jika berupa list
             
         if creation_date:
             age_days = (datetime.now() - creation_date).days
@@ -125,10 +125,12 @@ def scan_url():
         X_input = pd.DataFrame([feature_dict])
 
         prediksi = ai_model.predict(X_input)
-        prediksi_angka = int(prediksi)
+        
+        # PERBAIKAN: Menggunakan .item() untuk mencegah error dimensi array di Numpy versi terbaru
+        prediksi_angka = prediksi.item() 
         
         probabilitas = ai_model.predict_proba(X_input)
-        confidence_val = float(probabilitas.max())
+        confidence_val = probabilitas.max().item()
         confidence = round(confidence_val * 100, 1)
         status = "Phishing" if (prediksi_angka == -1 or is_mock_test) else "Aman"
         if is_mock_test:
