@@ -253,7 +253,7 @@
         });
 
         setTimeout(() => {
-            fetch('safeguard-production-d5e9.up.railway.app', {
+            fetch('https://safeguard-production-d5e9.up.railway.app/api/scan', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ url: urlValue })
