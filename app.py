@@ -139,6 +139,7 @@ def scan_url():
         if iframe_val == -1: anomali_kritis += 1
         if sfh_val == -1: anomali_kritis += 1
         if url_anchor_val == -1: anomali_kritis += 1
+        if age_domain_val == -1: anomali_kritis += 1
 
         domain_aman = ['google.com', 'gemini.google.com', 'unimed.ac.id', 'github.com']
         is_whitelisted = any(d in domain for d in domain_aman)
