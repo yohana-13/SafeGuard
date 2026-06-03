@@ -14,7 +14,8 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 warnings.filterwarnings("ignore") 
 
 app = Flask(__name__)
-CORS(app)
+# Membuka jalur agar Vercel bisa berkomunikasi dengan Railway
+CORS(app, resources={r"/api/*": {"origins": "*"}})
 
 MODEL_PATH = 'safeguard_model.pkl'
 try:
@@ -36,8 +37,9 @@ def get_real_domain_age(domain_name):
         w = whois.whois(domain_name)
         creation_date = w.creation_date
         
+        # PERBAIKAN: Mengambil tanggal pertama secara spesifik jika outputnya berupa list
         if isinstance(creation_date, list):
-            creation_date = creation_date # Memastikan mengambil tanggal pertama jika berupa list
+            creation_date = creation_date 
             
         if creation_date:
             age_days = (datetime.now() - creation_date).days
@@ -97,7 +99,8 @@ def scan_url():
         except Exception:
             pass
 
-        feature_dict = {feat: 0 for feat in ai_features}
+        # Mengisi sisa 30 fitur dengan nilai default aman
+        feature_dict = {feat: 1 for feat in ai_features}
         
         if 'SSLfinal_State' in feature_dict: feature_dict['SSLfinal_State'] = ssl_status
         if 'URL_of_Anchor' in feature_dict: feature_dict['URL_of_Anchor'] = url_anchor_val
@@ -126,11 +129,18 @@ def scan_url():
 
         prediksi = ai_model.predict(X_input)
         
-        # PERBAIKAN: Menggunakan .item() untuk mencegah error dimensi array di Numpy versi terbaru
-        prediksi_angka = prediksi.item() 
+        # PERBAIKAN FINAL: Metode teraman mengekstrak angka dari array Numpy versi apapun
+        try:
+            prediksi_angka = int(prediksi.tolist())
+        except:
+            prediksi_angka = int(prediksi)
         
         probabilitas = ai_model.predict_proba(X_input)
-        confidence_val = probabilitas.max().item()
+        try:
+            confidence_val = float(probabilitas.max().item())
+        except:
+            confidence_val = float(probabilitas.max())
+            
         confidence = round(confidence_val * 100, 1)
         status = "Phishing" if (prediksi_angka == -1 or is_mock_test) else "Aman"
         if is_mock_test:
