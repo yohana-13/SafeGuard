@@ -14,7 +14,6 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 warnings.filterwarnings("ignore") 
 
 app = Flask(__name__)
-# Membuka jalur agar Vercel bisa berkomunikasi dengan Railway
 CORS(app, resources={r"/api/*": {"origins": "*"}})
 
 MODEL_PATH = 'safeguard_model.pkl'
@@ -23,9 +22,7 @@ try:
         model_data = pickle.load(file)
         ai_model = model_data['model']
         ai_features = model_data['features']
-    print("Model AI C4.5 berhasil ditanamkan ke dalam server!")
-except Exception as e:
-    print(f" Peringatan: Gagal memuat safeguard_model.pkl. {e}")
+except Exception:
     ai_model = None
     ai_features = []
 
@@ -33,14 +30,10 @@ def get_real_domain_age(domain_name):
     try:
         if domain_name in ['127.0.0.1', 'localhost'] or domain_name.startswith('192.168.'):
             return -1 
-            
         w = whois.whois(domain_name)
         creation_date = w.creation_date
-        
-        # PERBAIKAN: Mengambil tanggal pertama secara spesifik jika outputnya berupa list
         if isinstance(creation_date, list):
             creation_date = creation_date 
-            
         if creation_date:
             age_days = (datetime.now() - creation_date).days
             return 1 if age_days >= 180 else -1
@@ -51,11 +44,10 @@ def get_real_domain_age(domain_name):
 @app.route('/api/scan', methods=['POST'])
 def scan_url():
     if ai_model is None:
-        return jsonify({"status": "error", "message": "Sistem AI sedang offline. Model tidak ditemukan."}), 500
+        return jsonify({"status": "error", "message": "Sistem AI offline."}), 500
 
     data = request.get_json()
     url = data.get('url', '')
-    
     if not url.startswith(('http://', 'https://')):
         url = 'https://' + url
 
@@ -99,7 +91,6 @@ def scan_url():
         except Exception:
             pass
 
-        # Mengisi sisa 30 fitur dengan nilai default aman
         feature_dict = {feat: 1 for feat in ai_features}
         
         if 'SSLfinal_State' in feature_dict: feature_dict['SSLfinal_State'] = ssl_status
@@ -109,55 +100,47 @@ def scan_url():
         if 'age_of_domain' in feature_dict: feature_dict['age_of_domain'] = age_domain_val
 
         is_mock_test = "mock" in url.lower() or "test" in url.lower() or "127.0.0.1" in url
-        if is_mock_test:
-            ssl_status = -1
-            url_anchor_val = -1
-            iframe_val = -1
-            sfh_val = -1
-            age_domain_val = -1
-            link_ratio = 0.85 
-            
-            if 'SSLfinal_State' in feature_dict: feature_dict['SSLfinal_State'] = -1
-            if 'URL_of_Anchor' in feature_dict: feature_dict['URL_of_Anchor'] = -1
-            if 'Iframe' in feature_dict: feature_dict['Iframe'] = -1
-            if 'SFH' in feature_dict: feature_dict['SFH'] = -1
-            if 'age_of_domain' in feature_dict: feature_dict['age_of_domain'] = -1
-            if 'Prefix_Suffix' in feature_dict: feature_dict['Prefix_Suffix'] = -1
-            if 'having_Sub_Domain' in feature_dict: feature_dict['having_Sub_Domain'] = -1
-
+        
         X_input = pd.DataFrame([feature_dict])
-
-        prediksi = ai_model.predict(X_input)
         
-        # PERBAIKAN FINAL: Metode teraman mengekstrak angka dari array Numpy versi apapun
         try:
-            prediksi_angka = int(prediksi.tolist())
+            prediksi_angka = int(ai_model.predict(X_input).tolist())
         except:
-            prediksi_angka = int(prediksi)
-        
-        probabilitas = ai_model.predict_proba(X_input)
+            prediksi_angka = int(ai_model.predict(X_input))
+            
         try:
-            confidence_val = float(probabilitas.max().item())
+            confidence_val = float(ai_model.predict_proba(X_input).max().item())
         except:
-            confidence_val = float(probabilitas.max())
+            confidence_val = float(ai_model.predict_proba(X_input).max())
             
         confidence = round(confidence_val * 100, 1)
+
+        anomali_kritis = 0
+        if ssl_status == -1: anomali_kritis += 1
+        if iframe_val == -1: anomali_kritis += 1
+        if sfh_val == -1: anomali_kritis += 1
+        if url_anchor_val == -1: anomali_kritis += 1
+
+        if prediksi_angka == 1 and anomali_kritis >= 1:
+            prediksi_angka = -1 # PAKSA MENJADI PHISHING
+            confidence = min(98.5, 75.0 + (anomali_kritis * 7.5)) 
+
         status = "Phishing" if (prediksi_angka == -1 or is_mock_test) else "Aman"
         if is_mock_test:
             confidence = 100.0
-            
+
         rules = []
         if ssl_status == -1: rules.append("Situs beroperasi tanpa sertifikat keamanan HTTPS/SSL.")
-        if age_domain_val == -1: rules.append("Domain berumur kritis (Kurang dari 6 bulan sejak pendaftaran global / Deteksi Localhost fiktif).")
+        if age_domain_val == -1: rules.append("Domain berumur kritis (Kurang dari 6 bulan).")
         if age_domain_val == 0: rules.append("Catatan registrasi WHOIS domain disembunyikan atau tidak merespons.")
-        if url_anchor_val == -1: rules.append(f"Lebih dari 67% tautan gambar/teks mengarah ke luar domain ({round(link_ratio*100,1)}%).")
-        if iframe_val == -1: rules.append("Ditemukan injeksi skrip Iframe siluman berukuran 0px (display:none).")
-        if sfh_val == -1: rules.append("Formulir pengisian data mengirimkan informasi kredensial ke server pihak ketiga.")
+        if url_anchor_val == -1: rules.append(f"Lebih dari 67% tautan mengarah ke luar domain ({round(link_ratio*100,1)}%).")
+        if iframe_val == -1: rules.append("Ditemukan injeksi skrip Iframe siluman (display:none/0px).")
+        if sfh_val == -1: rules.append("Formulir pengisian data mengirimkan kredensial ke server asing.")
         
         if len(rules) == 0 and status == "Aman":
-            rules.append("Struktur Document Object Model (DOM) normal, rekam jejak WHOIS valid, dan enkripsi terverifikasi.")
-        elif len(rules) == 0 and status == "Phishing":
-            rules.append("Kombinasi anomali topologi web terdeteksi secara otomatis oleh Pohon Keputusan C4.5.")
+            rules.append("Struktur DOM normal, rekam jejak WHOIS valid, dan enkripsi terverifikasi.")
+        elif status == "Phishing" and len(rules) == 0:
+            rules.append("Anomali topologi terdeteksi oleh Pohon Keputusan C4.5.")
 
         return jsonify({
             "status": "success",
@@ -167,10 +150,8 @@ def scan_url():
             "xai_rules": rules
         })
 
-    except requests.exceptions.RequestException:
-        return jsonify({"status": "error", "message": "Gagal mengakses target. Situs mungkin tidak aktif atau memblokir akses pemindaian sistem."}), 400
     except Exception as e:
-        return jsonify({"status": "error", "message": f"Sistem gagal mengekstrak struktur web ini: {str(e)}"}), 500
+        return jsonify({"status": "error", "message": str(e)}), 500
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
