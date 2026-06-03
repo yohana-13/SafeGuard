@@ -6,3 +6,4 @@ python-whois
 pandas
 scikit-learn
 gunicorn
+numpy==1.26.4
